@@ -1,0 +1,3 @@
+helper_homepage:
+    path:     /
+    defaults: { _controller: HelperBundle:Default:index }

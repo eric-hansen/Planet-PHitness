@@ -1,0 +1,11 @@
+helper:
+    resource: "@HelperBundle/Resources/config/routing.yml"
+    prefix:   /
+
+planet_p_hitness:
+    resource: "@PlanetPHitnessBundle/Resources/config/routing.yml"
+    prefix:   /
+
+app:
+    resource: "@AppBundle/Controller/"
+    type:     annotation

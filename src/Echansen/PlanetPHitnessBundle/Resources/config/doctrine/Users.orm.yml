@@ -1,0 +1,41 @@
+Echansen\PlanetPHitnessBundle\Entity\Users:
+    type: entity
+    table: users
+    uniqueConstraints:
+        users_email_salt_key:
+            columns:
+                - email
+                - salt
+    id:
+        id:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            generator:
+                strategy: SEQUENCE
+    fields:
+        email:
+            type: string
+            nullable: true
+            length: 50
+            options:
+                fixed: false
+        password:
+            type: string
+            nullable: true
+            length: 255
+            options:
+                fixed: false
+        salt:
+            type: string
+            nullable: true
+            length: 255
+            options:
+                fixed: false
+        lastLogin:
+            type: datetime
+            nullable: true
+            column: last_login
+    lifecycleCallbacks: {  }

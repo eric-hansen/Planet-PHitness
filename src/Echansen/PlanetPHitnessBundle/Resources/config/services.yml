@@ -1,0 +1,4 @@
+services:
+#    planet_p_hitness.example:
+#        class: Echansen\PlanetPHitnessBundle\Example
+#        arguments: [@service_id, "plain_value", %parameter%]

@@ -1,0 +1,4 @@
+planet_phitness_homepage:
+    resource: "@PlanetPHitnessBundle/Controller/"
+    type: annotation
+    prefix: /
