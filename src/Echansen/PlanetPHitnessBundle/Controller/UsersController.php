@@ -2,6 +2,9 @@
 
 namespace Echansen\PlanetPHitnessBundle\Controller;
 
+use Echansen\PlanetPHitnessBundle\Entity\Users;
+use Echansen\PlanetPHitnessBundle\Form\UsersType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
@@ -32,16 +35,16 @@ class UsersController extends AbstractController
     /**
      * Returns a user's salt.
      *
-     * @Route("/salt", name="users.salt")
+     * @Route("/salt/{id}", name="users.salt", requirements={"id" = "\d+"})
      */
-    public function saltAction()
+    public function saltAction($id)
     {
         // @TODO: replace findOneById(1) with the proper user ID/PK (get via session)
 
         /** @var Users $userInfo */
-        $userInfo = $this->get('doctrine.orm.default_entity_manager')->getRepository('PlanetPHitnessBundle:Users')->findOneById(1);
+        $userInfo = $this->get('doctrine.orm.default_entity_manager')->getRepository('PlanetPHitnessBundle:Users')->findOneById($id);
 
-        return new JsonResponse(array('salt' => $userInfo->getSalt()));
+        return $this->JsonResponse(['salt' => $userInfo->getSalt()]);
     }
 
     public function cardioSettingsAction()
@@ -50,10 +53,15 @@ class UsersController extends AbstractController
     }
 
     /**
-     * Destroys the user's session and returns 200 on success.
+     * @Route("/register", name="users.register")
      */
-    public function logoutAction()
+    public function registerAction(Request $request)
     {
+        $task = new Users();
+        $form = $this->createForm(UsersType::class, $task);
 
+        // $salt = \mcrypt_create_iv(22, MCRYPT_DEV_URANDOM);
+
+        return $this->render('PlanetPHitnessBundle:Users:register.html.twig', ['form' => $form->createView()]);
     }
 }

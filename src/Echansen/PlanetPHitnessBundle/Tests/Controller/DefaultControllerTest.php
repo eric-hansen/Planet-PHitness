@@ -6,18 +6,25 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class UsersControllerTest extends WebTestCase
 {
-    public function testSalt()
+    private function createRequest($httpMethod, $uri)
     {
         $client = static::createClient();
 
-        $crawler = $client->request('GET', '/users/salt');
+        $client->request($httpMethod, $uri);
 
-        $contentType = $client->getResponse()->headers->get('Content-Type');
+        return [$client->getRequest(), $client->getResponse()];
+    }
 
-        $this->assertEquals('application/json', $contentType);
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+    public function testSalt()
+    {
+        list($request, $response) = $this->createRequest('GET', '/users/salt');
 
-        $salt = json_decode($client->getResponse()->getContent(), true);
+        $this->assertNotEquals('application/json', $response->headers->get('Content-Type'));
+        $this->assertNotEquals(200, $response->getStatusCode());
+
+        list($request, $response) = $this->createRequest('GET', '/users/salt/1');
+
+        $salt = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('salt', $salt);
         $this->assertNotEquals('', $salt['salt']);
