@@ -7,6 +7,7 @@ use Echansen\PlanetPHitnessBundle\Form\UsersType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * Should only be used when the user has already been authenticated.
@@ -17,6 +18,17 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
  */
 class UsersController extends AbstractController
 {
+    /**
+     * @Route("/login", name="users.login")
+     */
+    public function loginAction()
+    {
+        $session = new Session();
+        $session->start();
+
+        return $this->render('PlanetPHitnessBundle:Users:login.html.twig', ['notices' => $session->getFlashBag()->all()]);
+    }
+
     public function indexAction()
     {
         return $this->render('PlanetPHitnessBundle:Default:index.html.twig');
@@ -32,21 +44,6 @@ class UsersController extends AbstractController
 
     }
 
-    /**
-     * Returns a user's salt.
-     *
-     * @Route("/salt/{id}", name="users.salt", requirements={"id" = "\d+"})
-     */
-    public function saltAction($id)
-    {
-        // @TODO: replace findOneById(1) with the proper user ID/PK (get via session)
-
-        /** @var Users $userInfo */
-        $userInfo = $this->get('doctrine.orm.default_entity_manager')->getRepository('PlanetPHitnessBundle:Users')->findOneById($id);
-
-        return $this->JsonResponse(['salt' => $userInfo->getSalt()]);
-    }
-
     public function cardioSettingsAction()
     {
 
@@ -60,7 +57,27 @@ class UsersController extends AbstractController
         $task = new Users();
         $form = $this->createForm(UsersType::class, $task);
 
-        // $salt = \mcrypt_create_iv(22, MCRYPT_DEV_URANDOM);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            /** @var Users $user */
+            $user = $form->getData();
+
+            // Override the passed in password to generate a salted and hashy password
+            $user->setPassword($user->generateHash());
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($task);
+            $em->flush();
+
+            $session = new Session();
+            $session->start();
+
+            $session->getFlashBag()->add('notice', 'Registration successful!');
+
+            $this->redirectToRoute('users.login');
+        }
 
         return $this->render('PlanetPHitnessBundle:Users:register.html.twig', ['form' => $form->createView()]);
     }

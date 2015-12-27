@@ -3,11 +3,12 @@
 namespace Echansen\PlanetPHitnessBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Users
  *
- * @ORM\Table(name="users", uniqueConstraints={@ORM\UniqueConstraint(name="users_email_salt_key", columns={"email", "salt"})})
+ * @ORM\Table(name="users", uniqueConstraints={@ORM\UniqueConstraint(columns={"email"})})
  * @ORM\Entity
  */
 class Users
@@ -25,6 +26,7 @@ class Users
     /**
      * @var string
      *
+     * @Assert\NotBlank()
      * @ORM\Column(name="email", type="string", length=50, nullable=true)
      */
     private $email;
@@ -32,16 +34,10 @@ class Users
     /**
      * @var string
      *
+     * @Assert\NotBlank()
      * @ORM\Column(name="password", type="string", length=255, nullable=true)
      */
     private $password;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="salt", type="string", length=255, nullable=true)
-     */
-    private $salt;
 
     /**
      * @var \DateTime
@@ -49,8 +45,6 @@ class Users
      * @ORM\Column(name="last_login", type="datetime", nullable=true)
      */
     private $lastLogin;
-
-
 
     /**
      * Get id
@@ -111,30 +105,6 @@ class Users
     }
 
     /**
-     * Set salt
-     *
-     * @param string $salt
-     *
-     * @return Users
-     */
-    public function setSalt($salt)
-    {
-        $this->salt = $salt;
-
-        return $this;
-    }
-
-    /**
-     * Get salt
-     *
-     * @return string
-     */
-    public function getSalt()
-    {
-        return $this->salt;
-    }
-
-    /**
      * Set lastLogin
      *
      * @param \DateTime $lastLogin
@@ -156,5 +126,12 @@ class Users
     public function getLastLogin()
     {
         return $this->lastLogin;
+    }
+
+    public function generateHash($salt = null, $password = null)
+    {
+        $salt = $salt ?: \mcrypt_create_iv(22, MCRYPT_DEV_URANDOM);
+
+        return password_hash($password ?: $this->getPassword(), PASSWORD_BCRYPT, ['cost' => 12, 'salt' => $salt]);
     }
 }
